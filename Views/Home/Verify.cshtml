@@ -1,0 +1,88 @@
+﻿@{
+    ViewData["Title"] = "Verify OTP";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h2 class="card-title text-center mb-4">Verify OTP</h2>
+                    <p class="text-center">Enter the 6-digit code sent to your WhatsApp</p>
+
+                    <form id="verifyForm">
+                        <div class="mb-3">
+                            <label for="otpCode" class="form-label">Verification Code</label>
+                            <input type="text" class="form-control" id="otpCode"
+                                   placeholder="Enter 6-digit code" maxlength="6" required>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100" id="submitBtn">
+                            Verify Code
+                        </button>
+                    </form>
+
+                    <div class="text-center mt-3">
+                        <a href="@Url.Action("Login", "Home")" class="btn btn-link">Back to Login</a>
+                    </div>
+
+                    <div id="message" class="mt-3" style="display: none;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.getElementById('verifyForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const code = document.getElementById('otpCode').value;
+            const submitBtn = document.getElementById('submitBtn');
+            const messageDiv = document.getElementById('message');
+
+            if (!code || code.length !== 6) {
+                showMessage('Please enter a valid 6-digit code', 'danger');
+                return;
+            }
+
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Verifying...';
+
+            try {
+                const response = await fetch('/Auth/VerifyOtp', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `code=${encodeURIComponent(code)}`
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showMessage(result.message, 'success');
+                    // Redirect to profile page
+                    setTimeout(() => {
+                        window.location.href = result.redirectUrl;
+                    }, 1000);
+                } else {
+                    showMessage(result.message, 'danger');
+                }
+            } catch (error) {
+                showMessage('An error occurred. Please try again.', 'danger');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = 'Verify Code';
+            }
+        });
+
+        function showMessage(message, type) {
+            const messageDiv = document.getElementById('message');
+            messageDiv.style.display = 'block';
+            messageDiv.className = `alert alert-${type} mt-3`;
+            messageDiv.textContent = message;
+        }
+    </script>
+}
