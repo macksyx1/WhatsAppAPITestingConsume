@@ -12,10 +12,10 @@ EXPOSE 8081
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["WhatsAppConsume/WhatsAppConsume.csproj", "WhatsAppConsume/"]
-RUN dotnet restore "./WhatsAppConsume/WhatsAppConsume.csproj"
+COPY ["WhatsAppConsume.csproj", "."]
+RUN dotnet restore "./WhatsAppConsume.csproj"
 COPY . .
-WORKDIR "/src/WhatsAppConsume"
+WORKDIR "/src/."
 RUN dotnet build "./WhatsAppConsume.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 # This stage is used to publish the service project to be copied to the final stage
