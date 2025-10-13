@@ -13,7 +13,7 @@
                         <div class="mb-3">
                             <label for="phoneNumber" class="form-label">Phone Number</label>
                             <input type="tel" class="form-control" id="phoneNumber"
-                                   placeholder="Enter your phone number +639053422288" required>
+                                   placeholder="e.g. 9053422288" required>
                             <div class="form-text">We'll send a verification code via WhatsApp</div>
                         </div>
 
@@ -30,16 +30,82 @@
 </div>
 
 @section Scripts {
+
+
+    <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@17/build/js/intlTelInput.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@17/build/js/utils.js"></script>
+
     <script>
-        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+
+        const phoneInputField = document.querySelector("#phoneNumber");
+        const iti = window.intlTelInput(phoneInputField, {
+            initialCountry: "auto",
+            geoIpLookup: function (callback) {
+                fetch("https://ipapi.co/json")
+                    .then((res) => res.json())
+                    .then((data) => callback(data.country_code))
+                    .catch(() => callback("us"));
+            },
+            utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@17/build/js/utils.js"
+        });
+
+
+
+        // document.getElementById('loginForm').addEventListener('submit', async function(e) {
+        //     e.preventDefault();
+
+        //     const phoneNumber = document.getElementById('phoneNumber').value;
+        //     const submitBtn = document.getElementById('submitBtn');
+        //     const messageDiv = document.getElementById('message');
+
+        //     if (!phoneNumber) {
+        //         showMessage('Please enter your phone number', 'danger');
+        //         return;
+        //     }
+
+        //     submitBtn.disabled = true;
+        //     submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Sending...';
+
+        //     try {
+        //         const response = await fetch('/Auth/RequestOtp', {
+        //             method: 'POST',
+        //             headers: {
+        //                 'Content-Type': 'application/x-www-form-urlencoded',
+        //             },
+        //             body: `phoneNumber=${encodeURIComponent(phoneNumber)}`
+        //         });
+
+        //         const result = await response.json();
+
+        //         if (result.success) {
+        //             showMessage(result.message, 'success');
+        //             // Redirect to verification page
+        //             setTimeout(() => {
+        //                 window.location.href = '@Url.Action("Verify", "Home")';
+        //             }, 2000);
+        //         } else {
+        //             showMessage(result.message, 'danger');
+        //         }
+        //     } catch (error) {
+        //         showMessage('An error occurred. Please try again.', 'danger');
+        //     } finally {
+        //         submitBtn.disabled = false;
+        //         submitBtn.innerHTML = 'Send OTP via WhatsApp';
+        //     }
+        // });
+
+
+
+
+         document.getElementById('loginForm').addEventListener('submit', async function (e) {
             e.preventDefault();
 
-            const phoneNumber = document.getElementById('phoneNumber').value;
+            const phoneNumber = iti.getNumber(); // Get full international format
             const submitBtn = document.getElementById('submitBtn');
             const messageDiv = document.getElementById('message');
 
-            if (!phoneNumber) {
-                showMessage('Please enter your phone number', 'danger');
+            if (!iti.isValidNumber()) {
+                showMessage('Please enter a valid phone number', 'danger');
                 return;
             }
 
@@ -59,7 +125,6 @@
 
                 if (result.success) {
                     showMessage(result.message, 'success');
-                    // Redirect to verification page
                     setTimeout(() => {
                         window.location.href = '@Url.Action("Verify", "Home")';
                     }, 2000);
