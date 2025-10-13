@@ -13,7 +13,7 @@
                         <div class="mb-3">
                             <label for="phoneNumber" class="form-label">Phone Number</label>
                             <input type="tel" class="form-control" id="phoneNumber"
-                                   placeholder="e.g. 9053422288" required>
+                                   placeholder="Enter your mobile number" required>
                             <div class="form-text">We'll send a verification code via WhatsApp</div>
                         </div>
 
@@ -38,7 +38,7 @@
     <script>
 
         const phoneInputField = document.querySelector("#phoneNumber");
-        const iti = window.intlTelInput(phoneInputField, {
+          const iti = window.intlTelInput(phoneInputField, {
             initialCountry: "auto",
             geoIpLookup: function (callback) {
                 fetch("https://ipapi.co/json")
@@ -46,9 +46,11 @@
                     .then((data) => callback(data.country_code))
                     .catch(() => callback("us"));
             },
-            utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@17/build/js/utils.js"
-        });
-
+            utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@17/build/js/utils.js",
+            formatOnDisplay: true,
+            showSelectedDialCode: true,
+            separateDialCode: true
+          });
 
 
         // document.getElementById('loginForm').addEventListener('submit', async function(e) {
